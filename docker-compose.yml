@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql-container
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: users-api
+      MYSQL_PASSWORD: root
+    networks:
+      - app-network
+
+  memcached:
+    image: memcached:latest
+    container_name: memcached-container
+    ports:
+      - "11211:11211"
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:4
+    container_name: mongo-container
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    networks:
+      - app-network
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rabbit-container
+    ports:
+      - "5671:5671"
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: root
+      RABBITMQ_DEFAULT_PASS: root
+    networks:
+      - app-network
+
+  solr:
+    image: solr:latest
+    container_name: solr-container
+    ports:
+      - "8983:8983"
+    volumes:
+      - ./search-api/solr-config:/opt/solr/server/solr/hotels
+    command: solr-create -c hotels
+    networks:
+      - app-network
+
+  users-api:
+    image: users-api:latest
+    container_name: users-api-container
+    build:
+      context: ./users-api
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    command: /bin/sh -c "sleep 10 && go run main.go"
+    depends_on:
+      - memcached
+      - mysql
+    networks:
+      - app-network
+
+  hotels-api:
+    image: hotels-api:latest
+    container_name: hotels-api-container
+    build:
+      context: ./hotels-api
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    command: /bin/sh -c "sleep 10 && go run main.go"
+    depends_on:
+      - mongo
+      - rabbitmq
+    networks:
+      - app-network
+
+  search-api:
+    image: search-api:latest
+    container_name: search-api-container
+    build:
+      context: ./search-api
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    command: /bin/sh -c "sleep 10 && go run main.go"
+    depends_on:
+      - rabbitmq
+      - solr
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

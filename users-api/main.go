@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	"log"
 	"time"
 	controllers "users-api/controllers/users"
 	"users-api/internal/tokenizers"
 	repositories "users-api/repositories/users"
 	services "users-api/services/users"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -16,7 +17,7 @@ func main() {
 		repositories.MySQLConfig{
 			Host:     "mysql",
 			Port:     "3306",
-			Database: "users-api",
+			Database: "users_api",
 			Username: "root",
 			Password: "root",
 		},

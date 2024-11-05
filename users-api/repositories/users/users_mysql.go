@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 	"users-api/dao/users"
 
 	"gorm.io/driver/mysql"
@@ -29,14 +30,21 @@ var (
 )
 
 func NewMySQL(config MySQLConfig) MySQL {
-	// Build DSN (Data Source Name)
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		config.Username, config.Password, config.Host, config.Port, config.Database)
 
-	// Open connection to MySQL using GORM
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	var db *gorm.DB
+	var err error
+	for i := 0; i < 5; i++ { // Intentamos hasta 5 veces
+		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		if err == nil {
+			break // Salimos del bucle si la conexión es exitosa
+		}
+		log.Printf("Intentando conectar a MySQL, intento %d de 5: %v", i+1, err)
+		time.Sleep(5 * time.Second) // Esperamos 5 segundos entre intentos
+	}
 	if err != nil {
-		log.Fatalf("failed to connect to MySQL: %s", err.Error())
+		log.Fatalf("failed to connect to MySQL after 5 attempts: %s", err.Error())
 	}
 
 	// Automigrate structs to Gorm
@@ -46,9 +54,7 @@ func NewMySQL(config MySQLConfig) MySQL {
 		}
 	}
 
-	return MySQL{
-		db: db,
-	}
+	return MySQL{db: db}
 }
 
 func (repository MySQL) GetAll() ([]users.User, error) {

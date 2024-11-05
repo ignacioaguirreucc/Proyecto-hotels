@@ -3,9 +3,9 @@ package config
 import "time"
 
 const (
-	MySQLHost     = "localhost"
+	MySQLHost     = "mysql"
 	MySQLPort     = "3306"
-	MySQLDatabase = "users-api"
+	MySQLDatabase = "users_api"
 	MySQLUsername = "root"
 	MySQLPassword = "root"
 

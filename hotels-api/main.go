@@ -1,25 +1,32 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"hotels-api/clients/queues"
-	controllers "hotels-api/controllers/hotels"
-	repositories "hotels-api/repositories/hotels"
-	services "hotels-api/services/hotels"
+	"context"
 	"log"
 	"time"
+
+	"hotels-api/clients/queues"
+	controllersHotels "hotels-api/controllers/hotels"
+	controllersReservations "hotels-api/controllers/reservations"
+	repositoriesHotels "hotels-api/repositories/hotels"
+	repositoriesReservations "hotels-api/repositories/reservations"
+	servicesHotels "hotels-api/services/hotels"
+	servicesReservations "hotels-api/services/reservations"
+
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
-	// Local cache
-	cacheRepository := repositories.NewCache(repositories.CacheConfig{
-		MaxSize:      100000,
-		ItemsToPrune: 100,
-		Duration:     30 * time.Second,
-	})
+	// Conexión MongoDB
+	mongoClient, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb://root:root@mongo:27017"))
+	if err != nil {
+		log.Fatalf("Error connecting to MongoDB: %v", err)
+	}
 
-	// Mongo
-	mainRepository := repositories.NewMongo(repositories.MongoConfig{
+	// Configuración de Repositorios
+	hotelsRepo := repositoriesHotels.NewMongo(repositoriesHotels.MongoConfig{
 		Host:       "mongo",
 		Port:       "27017",
 		Username:   "root",
@@ -28,7 +35,14 @@ func main() {
 		Collection: "hotels",
 	})
 
-	// Rabbit
+	reservationsRepo := repositoriesReservations.NewMongo(mongoClient, "hotels-api", "reservations")
+
+	// Configuración de Cache y RabbitMQ
+	cacheRepo := repositoriesHotels.NewCache(repositoriesHotels.CacheConfig{
+		MaxSize:      100000,
+		ItemsToPrune: 100,
+		Duration:     30 * time.Second,
+	})
 	eventsQueue := queues.NewRabbit(queues.RabbitConfig{
 		Host:      "rabbitmq",
 		Port:      "5672",
@@ -37,19 +51,27 @@ func main() {
 		QueueName: "hotels-news",
 	})
 
-	// Services
-	service := services.NewService(mainRepository, cacheRepository, eventsQueue)
+	// Servicios
+	hotelsService := servicesHotels.NewService(hotelsRepo, cacheRepo, eventsQueue)
+	reservationsService := servicesReservations.NewService(reservationsRepo)
 
-	// Controllers
-	controller := controllers.NewController(service)
+	// Controladores
+	hotelsController := controllersHotels.NewController(hotelsService)
+	reservationsController := controllersReservations.NewController(reservationsService)
 
-	// Router
+	// Rutas
 	router := gin.Default()
-	router.GET("/hotels/:id", controller.GetHotelByID)
-	router.POST("/hotels", controller.Create)
-	router.PUT("/hotels/:id", controller.Update)
-	router.DELETE("/hotels/:id", controller.Delete)
+
+	// Rutas de Reservas y Hoteles (usando solo `hotel_id` en las rutas para evitar conflictos)
+	router.POST("/hotels/:hotel_id/reservations", reservationsController.CreateReservation)
+	router.GET("/hotels/:hotel_id/reservations", reservationsController.GetReservationsByHotelID)
+	router.GET("/hotels/:hotel_id", hotelsController.GetHotelByID)
+	router.POST("/hotels", hotelsController.Create)
+	router.PUT("/hotels/:hotel_id", hotelsController.Update)
+	router.DELETE("/hotels/:hotel_id", hotelsController.Delete)
+
+	// Ejecutar servidor
 	if err := router.Run(":8081"); err != nil {
-		log.Fatalf("error running application: %w", err)
+		log.Fatalf("Error running server: %v", err)
 	}
 }

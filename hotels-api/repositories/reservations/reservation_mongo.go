@@ -31,10 +31,10 @@ func (m Mongo) Create(ctx context.Context, reservation reservations.Reservation)
 	return id, nil
 }
 
-func (m Mongo) GetByHotelID(ctx context.Context, hotelID string) ([]reservations.Reservation, error) {
-	cursor, err := m.client.Database(m.database).Collection(m.collection).Find(ctx, bson.M{"hotel_id": hotelID})
+func (m Mongo) GetByUserID(ctx context.Context, userID string) ([]reservations.Reservation, error) {
+	cursor, err := m.client.Database(m.database).Collection(m.collection).Find(ctx, bson.M{"user_id": userID})
 	if err != nil {
-		return nil, fmt.Errorf("error getting reservations by hotel ID: %w", err)
+		return nil, fmt.Errorf("error getting reservations by user ID: %w", err)
 	}
 
 	var reservations []reservations.Reservation

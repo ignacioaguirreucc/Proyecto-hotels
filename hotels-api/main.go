@@ -63,12 +63,12 @@ func main() {
 	router := gin.Default()
 
 	// Rutas de Reservas y Hoteles (usando solo `hotel_id` en las rutas para evitar conflictos)
-	router.POST("/hotels/:hotel_id/reservations", reservationsController.CreateReservation)
-	router.GET("/hotels/:hotel_id/reservations", reservationsController.GetReservationsByHotelID)
+	router.POST("/reservations", reservationsController.CreateReservation)
 	router.GET("/hotels/:hotel_id", hotelsController.GetHotelByID)
 	router.POST("/hotels", hotelsController.Create)
 	router.PUT("/hotels/:hotel_id", hotelsController.Update)
 	router.DELETE("/hotels/:hotel_id", hotelsController.Delete)
+	router.GET("/users/:user_id/reservations", reservationsController.GetReservationsByUserID)
 
 	// Ejecutar servidor
 	if err := router.Run(":8081"); err != nil {

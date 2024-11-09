@@ -9,7 +9,7 @@ import (
 
 type Repository interface {
 	Create(ctx context.Context, reservation reservations.Reservation) (string, error)
-	GetByHotelID(ctx context.Context, hotelID string) ([]reservations.Reservation, error)
+	GetByUserID(ctx context.Context, userID string) ([]reservations.Reservation, error)
 }
 
 type Service struct {
@@ -29,6 +29,6 @@ func (s Service) CreateReservation(ctx context.Context, reservation reservations
 	return id, nil
 }
 
-func (s Service) GetReservationsByHotelID(ctx context.Context, hotelID string) ([]reservations.Reservation, error) {
-	return s.repository.GetByHotelID(ctx, hotelID)
+func (s Service) GetReservationsByUserID(ctx context.Context, userID string) ([]reservations.Reservation, error) {
+	return s.repository.GetByUserID(ctx, userID)
 }

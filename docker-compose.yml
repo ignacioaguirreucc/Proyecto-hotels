@@ -104,9 +104,23 @@ services:
       - app-network
     restart: on-failure
 
+  frontend_hoteles:
+    image: frontend_hoteles:latest
+    container_name: frontend_hoteles
+    build:
+      context: ./frontend_hoteles
+    ports:
+      - "3000:80"
+    command: /bin/sh -c "npm install && npm start"
+    depends_on:
+      - users-api
+    networks:
+      - app-network
+    restart: on-failure
+
 networks:
   app-network:
     driver: bridge
 
 volumes:
-  mysql-data:  # Definición del volumen para MySQL
+  mysql-data:

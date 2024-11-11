@@ -44,8 +44,8 @@ func (m Mongo) CreateReservation(ctx context.Context, reservation Reservation) (
 	return id, nil
 }
 
-func (m Mongo) GetReservationsByHotelID(ctx context.Context, hotelID string) ([]Reservation, error) {
-	cursor, err := m.collection.Find(ctx, bson.M{"hotel_id": hotelID})
+func (m Mongo) GetByUserID(ctx context.Context, userID string) ([]Reservation, error) {
+	cursor, err := m.collection.Find(ctx, bson.M{"user_id": userID})
 	if err != nil {
 		return nil, fmt.Errorf("error finding reservations: %w", err)
 	}

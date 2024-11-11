@@ -3,8 +3,9 @@ package hotels
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	hotelsDAO "hotels-api/dao/hotels"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Mock struct {
@@ -22,15 +23,16 @@ func (repository Mock) GetHotelByID(ctx context.Context, id string) (hotelsDAO.H
 }
 
 func (repository Mock) Create(ctx context.Context, hotel hotelsDAO.Hotel) (string, error) {
-	id := uuid.New().String()
-	hotel.ID = uuid.New().String()
-	repository.docs[id] = hotel
-	return id, nil
+	hotelID := primitive.NewObjectID() // Genera un nuevo ObjectID
+	hotel.ID = hotelID                 // Asigna el ObjectID generado al hotel
+
+	repository.docs[hotelID.Hex()] = hotel // Guarda el hotel en el mapa usando el ObjectID en formato hexadecimal como clave
+	return hotelID.Hex(), nil              // Retorna el ID como cadena en formato hexadecimal
 }
 
 func (repository Mock) Update(ctx context.Context, hotel hotelsDAO.Hotel) error {
 	// Check if the hotel exists in the mock storage
-	currentHotel, exists := repository.docs[hotel.ID]
+	currentHotel, exists := repository.docs[hotel.ID.Hex()]
 	if !exists {
 		return fmt.Errorf("hotel with ID %s not found", hotel.ID)
 	}
@@ -56,7 +58,7 @@ func (repository Mock) Update(ctx context.Context, hotel hotelsDAO.Hotel) error 
 	}
 
 	// Save the updated hotel back to the mock storage
-	repository.docs[hotel.ID] = currentHotel
+	repository.docs[hotel.ID.Hex()] = currentHotel
 	return nil
 }
 

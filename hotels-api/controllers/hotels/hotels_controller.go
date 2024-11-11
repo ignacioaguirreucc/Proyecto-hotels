@@ -3,10 +3,11 @@ package hotels
 import (
 	"context"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	hotelsDomain "hotels-api/domain/hotels"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Service interface {
@@ -27,10 +28,10 @@ func NewController(service Service) Controller {
 }
 
 func (controller Controller) GetHotelByID(ctx *gin.Context) {
-	// Validate ID param
-	hotelID := strings.TrimSpace(ctx.Param("id"))
+	// Cambia de "id" a "hotel_id"
+	hotelID := strings.TrimSpace(ctx.Param("hotel_id"))
 
-	// Get hotel by ID using the service
+	// Obtiene el hotel por ID usando el servicio
 	hotel, err := controller.service.GetHotelByID(ctx.Request.Context(), hotelID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
@@ -39,7 +40,7 @@ func (controller Controller) GetHotelByID(ctx *gin.Context) {
 		return
 	}
 
-	// Send response
+	// Envía la respuesta
 	ctx.JSON(http.StatusOK, hotel)
 }
 
@@ -69,10 +70,10 @@ func (controller Controller) Create(ctx *gin.Context) {
 }
 
 func (controller Controller) Update(ctx *gin.Context) {
-	// Validate ID param
-	id := strings.TrimSpace(ctx.Param("id"))
+	// Cambia de "id" a "hotel_id"
+	id := strings.TrimSpace(ctx.Param("hotel_id"))
 
-	// Parse hotel
+	// Parsear el hotel
 	var hotel hotelsDomain.Hotel
 	if err := ctx.ShouldBindJSON(&hotel); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -81,10 +82,10 @@ func (controller Controller) Update(ctx *gin.Context) {
 		return
 	}
 
-	// Set the ID from the URL to the hotel object
+	// Configura el ID a partir de la URL al objeto hotel
 	hotel.ID = id
 
-	// Update hotel
+	// Actualiza el hotel
 	if err := controller.service.Update(ctx.Request.Context(), hotel); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": fmt.Sprintf("error updating hotel: %s", err.Error()),
@@ -92,17 +93,17 @@ func (controller Controller) Update(ctx *gin.Context) {
 		return
 	}
 
-	// Send response
+	// Envía la respuesta
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": id,
 	})
 }
 
 func (controller Controller) Delete(ctx *gin.Context) {
-	// Validate ID param
-	id := strings.TrimSpace(ctx.Param("id"))
+	// Cambia de "id" a "hotel_id"
+	id := strings.TrimSpace(ctx.Param("hotel_id"))
 
-	// Delete hotel
+	// Borra el hotel
 	if err := controller.service.Delete(ctx.Request.Context(), id); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": fmt.Sprintf("error deleting hotel: %s", err.Error()),
@@ -110,7 +111,7 @@ func (controller Controller) Delete(ctx *gin.Context) {
 		return
 	}
 
-	// Send response
+	// Envía la respuesta
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": id,
 	})

@@ -3,12 +3,13 @@ package hotels
 import (
 	"context"
 	"fmt"
+	hotelsDAO "hotels-api/dao/hotels"
+	"log"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	hotelsDAO "hotels-api/dao/hotels"
-	"log"
 )
 
 type MongoConfig struct {
@@ -53,45 +54,46 @@ func NewMongo(config MongoConfig) Mongo {
 }
 
 func (repository Mongo) GetHotelByID(ctx context.Context, id string) (hotelsDAO.Hotel, error) {
-	// Get from MongoDB
+	// Verifica que el ID sea de 24 caracteres para asegurar que es un ObjectID
+	if len(id) != 24 {
+		return hotelsDAO.Hotel{}, fmt.Errorf("invalid ID length: expected 24 characters")
+	}
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return hotelsDAO.Hotel{}, fmt.Errorf("error converting id to mongo ID: %w", err)
+		return hotelsDAO.Hotel{}, fmt.Errorf("invalid ID format: %w", err)
 	}
+
+	// Busca el hotel en MongoDB usando el ObjectID
 	result := repository.client.Database(repository.database).Collection(repository.collection).FindOne(ctx, bson.M{"_id": objectID})
 	if result.Err() != nil {
 		return hotelsDAO.Hotel{}, fmt.Errorf("error finding document: %w", result.Err())
 	}
 
-	// Convert document to DAO
-	var hotelDAO hotelsDAO.Hotel
-	if err := result.Decode(&hotelDAO); err != nil {
+	var hotel hotelsDAO.Hotel
+	if err := result.Decode(&hotel); err != nil {
 		return hotelsDAO.Hotel{}, fmt.Errorf("error decoding result: %w", err)
 	}
-	return hotelDAO, nil
+
+	return hotel, nil
 }
 
 func (repository Mongo) Create(ctx context.Context, hotel hotelsDAO.Hotel) (string, error) {
-	// Insert into mongo
-	result, err := repository.client.Database(repository.database).Collection(repository.collection).InsertOne(ctx, hotel)
+	// Genera un nuevo ObjectID
+	hotel.ID = primitive.NewObjectID()
+
+	// Inserta en MongoDB
+	_, err := repository.client.Database(repository.database).Collection(repository.collection).InsertOne(ctx, hotel)
 	if err != nil {
 		return "", fmt.Errorf("error creating document: %w", err)
 	}
 
-	// Get inserted ID
-	objectID, ok := result.InsertedID.(primitive.ObjectID)
-	if !ok {
-		return "", fmt.Errorf("error converting mongo ID to object ID")
-	}
-	return objectID.Hex(), nil
+	// Devuelve el ID generado en formato hexadecimal
+	return hotel.ID.Hex(), nil
 }
 
 func (repository Mongo) Update(ctx context.Context, hotel hotelsDAO.Hotel) error {
 	// Convert hotel ID to MongoDB ObjectID
-	objectID, err := primitive.ObjectIDFromHex(hotel.ID)
-	if err != nil {
-		return fmt.Errorf("error converting id to mongo ID: %w", err)
-	}
+	objectID := hotel.ID
 
 	// Create an update document
 	update := bson.M{}

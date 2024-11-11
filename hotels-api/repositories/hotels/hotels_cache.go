@@ -3,9 +3,10 @@ package hotels
 import (
 	"context"
 	"fmt"
-	"github.com/karlseguin/ccache"
 	hotelsDAO "hotels-api/dao/hotels"
 	"time"
+
+	"github.com/karlseguin/ccache"
 )
 
 const (
@@ -50,9 +51,9 @@ func (repository Cache) GetHotelByID(ctx context.Context, id string) (hotelsDAO.
 }
 
 func (repository Cache) Create(ctx context.Context, hotel hotelsDAO.Hotel) (string, error) {
-	key := fmt.Sprintf(keyFormat, hotel.ID)
+	key := fmt.Sprintf(keyFormat, hotel.ID.Hex()) // Convert ObjectID to string
 	repository.client.Set(key, hotel, repository.duration)
-	return hotel.ID, nil
+	return hotel.ID.Hex(), nil // Return the string representation
 }
 
 func (repository Cache) Update(ctx context.Context, hotel hotelsDAO.Hotel) error {

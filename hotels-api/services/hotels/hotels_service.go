@@ -5,6 +5,8 @@ import (
 	"fmt"
 	hotelsDAO "hotels-api/dao/hotels"
 	hotelsDomain "hotels-api/domain/hotels"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Repository interface {
@@ -48,7 +50,7 @@ func (service Service) GetHotelByID(ctx context.Context, id string) (hotelsDomai
 
 	// Convert DAO to DTO
 	return hotelsDomain.Hotel{
-		ID:        hotelDAO.ID,
+		ID:        hotelDAO.ID.Hex(),
 		Name:      hotelDAO.Name,
 		Address:   hotelDAO.Address,
 		City:      hotelDAO.City,
@@ -72,7 +74,11 @@ func (service Service) Create(ctx context.Context, hotel hotelsDomain.Hotel) (st
 		return "", fmt.Errorf("error creating hotel in main repository: %w", err)
 	}
 	// Set ID from main repository to use in the rest of the repositories
-	record.ID = id
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return "", fmt.Errorf("invalid ID format: %w", err)
+	}
+	record.ID = objectID
 	if _, err := service.cacheRepository.Create(ctx, record); err != nil {
 		return "", fmt.Errorf("error creating hotel in cache: %w", err)
 	}
@@ -88,8 +94,12 @@ func (service Service) Create(ctx context.Context, hotel hotelsDomain.Hotel) (st
 
 func (service Service) Update(ctx context.Context, hotel hotelsDomain.Hotel) error {
 	// Convert domain model to DAO model
+	objectID, err := primitive.ObjectIDFromHex(hotel.ID)
+	if err != nil {
+		return fmt.Errorf("invalid ID format: %w", err)
+	}
 	record := hotelsDAO.Hotel{
-		ID:        hotel.ID,
+		ID:        objectID,
 		Name:      hotel.Name,
 		Address:   hotel.Address,
 		City:      hotel.City,
@@ -99,7 +109,7 @@ func (service Service) Update(ctx context.Context, hotel hotelsDomain.Hotel) err
 	}
 
 	// Update the hotel in the main repository
-	err := service.mainRepository.Update(ctx, record)
+	err = service.mainRepository.Update(ctx, record)
 	if err != nil {
 		return fmt.Errorf("error updating hotel in main repository: %w", err)
 	}

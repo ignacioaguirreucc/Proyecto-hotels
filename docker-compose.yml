@@ -110,13 +110,15 @@ services:
     build:
       context: ./frontend_hoteles
     ports:
-      - "3000:80"
+      - "3001:80"
     command: /bin/sh -c "npm install && npm start"
     depends_on:
       - users-api
     networks:
       - app-network
     restart: on-failure
+    environment:
+    - REACT_APP_USERS_API=http://users-api:8080
 
 networks:
   app-network:

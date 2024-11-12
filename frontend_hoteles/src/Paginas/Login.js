@@ -3,14 +3,16 @@ import axios from '../axiosConfig'; // Usa la configuración de axios con el bac
 import { Link } from 'react-router-dom';
 import styles from './Login.module.css'; 
 import { FaUser, FaLock } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
+
+const Login = ({onLogin}) => {
   const [formData, setFormData] = useState({
     username: '',
     password: ''
   });
   const [message, setMessage] = useState('');  // Estado para el mensaje de éxito o error
-
+  const navigate = useNavigate();
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -25,14 +27,12 @@ const Login = () => {
         username: formData.username,
         password: formData.password,
       });
-      localStorage.setItem('token', response.data.token);  // Almacena el token JWT
-      setMessage('Inicio de sesión exitoso.');  // Mensaje de éxito
+      localStorage.setItem('token', response.data.token);
+      setMessage('Inicio de sesión exitoso.');
+      onLogin();  // Actualiza el estado de autenticación en App.js
+      navigate('/');  // Redirige al usuario a la página de inicio
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        setMessage('El usuario no existe o la contraseña es incorrecta.');  // Mensaje si el usuario no existe
-      } else {
-        setMessage('Error al iniciar sesión: ' + (error.response?.data?.error || 'Ocurrió un error'));
-      }
+      setMessage('Error al iniciar sesión: ' + (error.response?.data?.error || 'Ocurrió un error'));
     }
   };
 

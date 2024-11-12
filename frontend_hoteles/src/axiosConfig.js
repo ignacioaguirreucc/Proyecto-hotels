@@ -1,7 +1,10 @@
 import axios from 'axios';
 
-const instance = axios.create({
-  baseURL: 'http://localhost:8080', // API del backend
+const axiosInstance = axios.create({
+  baseURL: process.env.REACT_APP_USERS_API || 'http://localhost:8080', // Configuración para desarrollo local
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-export default instance;
+export default axiosInstance;

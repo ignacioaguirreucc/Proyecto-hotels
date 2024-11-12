@@ -1,45 +1,48 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+// App.js
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import NavBar from "./components/NavBar";
 import Home from "./Paginas/Home";
 import Hoteles from './Paginas/Hoteles';
-import Login from './Paginas/Login';
+import Login from './Paginas/Login'; // Asegúrate de que esta importación esté correcta
 import Registro from './Paginas/IniciarSesion';
 import MisReservas from './Paginas/Reservas';
 import DetalleHotel from './Paginas/DetalleHotel';
 
 function App() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [checkInDate, setCheckInDate] = useState('');
-  const [checkOutDate, setCheckOutDate] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const handleSearch = (term, checkIn, checkOut) => {
-    setSearchTerm(term);
-    setCheckInDate(checkIn);
-    setCheckOutDate(checkOut);
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token);
+  }, []);
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
   };
 
   return (
     <div className="App">
       <Router>
-        <NavBar />
+        <NavBar isAuthenticated={isAuthenticated} onLogout={handleLogout} />
         <Routes>
-          <Route
-            path="/"
-            element={
-              <Home
-                searchTerm={searchTerm}
-                checkInDate={checkInDate}
-                checkOutDate={checkOutDate}
-                onSearch={handleSearch}
-              />
-            }
-          />
+          <Route path="/" element={<Home />} />
           <Route path="/hoteles" element={<Hoteles />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login onLogin={handleLogin} />} /> {/* Asegúrate de pasar onLogin aquí */}
           <Route path="/registro" element={<Registro />} />
-          <Route path="/mis-reservas" element={<MisReservas />} />
-          <Route path="/detalle-hotel/:id" element={<DetalleHotel />} />
+          <Route 
+            path="/mis-reservas" 
+            element={isAuthenticated ? <MisReservas /> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/detalle-hotel/:id" 
+            element={<DetalleHotel isAuthenticated={isAuthenticated} />} 
+          />
         </Routes>
       </Router>
     </div>

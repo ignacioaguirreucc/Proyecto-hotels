@@ -8,11 +8,24 @@ import (
 	repositories "users-api/repositories/users"
 	services "users-api/services/users"
 
+	"github.com/gin-contrib/cors" // Importa el paquete de CORS
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+
+	// Configuración de CORS
+	router := gin.Default()
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3001", "*"}, // Permite localhost y cualquier origen
+		AllowMethods:     []string{"POST", "GET", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+
 	// MySQL
+
 	mySQLRepo := repositories.NewMySQL(
 		repositories.MySQLConfig{
 			Host:     "mysql",
@@ -47,9 +60,6 @@ func main() {
 
 	// Handlers
 	controller := controllers.NewController(service)
-
-	// Create router
-	router := gin.Default()
 
 	// URL mappings
 	router.GET("/users", controller.GetAll)

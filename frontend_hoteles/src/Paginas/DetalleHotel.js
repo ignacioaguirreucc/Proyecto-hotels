@@ -2,6 +2,8 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import styles from './DetalleHotel.module.css';
+import { useNavigate } from 'react-router-dom';
+
 
 const mockHotels = [ 
     {
@@ -85,13 +87,23 @@ const mockHotels = [
   ];
   
 
-const DetalleHotel = () => {
+  const DetalleHotel = ({ isAuthenticated }) => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const hotel = mockHotels.find((hotel) => hotel.id === parseInt(id));
   
     if (!hotel) {
       return <div>Hotel no encontrado</div>;
     }
+  
+    const handleReservation = () => {
+      if (!isAuthenticated) {
+        alert("Debes iniciar sesión para reservar.");
+        navigate('/login');
+      } else {
+        alert(`Reserva realizada para el hotel con ID: ${hotel.id}`);
+      }
+    };
   
     return (
       <div className={styles.detailContainer}>
@@ -100,32 +112,15 @@ const DetalleHotel = () => {
           <img src={hotel.image} alt={hotel.name} className={styles.hotelImage} />
           <div className={styles.hotelInfo}>
             <p className={styles.hotelDescription}>{hotel.description}</p>
-  
-            <p className={styles.hotelAmenities}>
-              <strong>Amenities:</strong> {hotel.amenities}
-            </p>
-            <p className={styles.hotelRooms}>
-              <strong>Tipos de habitaciones:</strong> {hotel.rooms}
-            </p>
-            
-
-            <p className={styles.hotelLocation}>
-              <strong>Country:</strong> {hotel.country}
-            </p>
-            <p className={styles.hotelLocation}>
-              <strong>City:</strong> {hotel.city}
-            </p>
-
-
-            <p className={styles.hotelLocation}>
-              <strong>Ubicación:</strong> {hotel.location}
-            </p>
-            <p className={styles.hotelPolicies}>
-              <strong>Políticas:</strong> {hotel.policies}
-            </p>
+            <p className={styles.hotelAmenities}><strong>Amenities:</strong> {hotel.amenities}</p>
+            <p className={styles.hotelRooms}><strong>Tipos de habitaciones:</strong> {hotel.rooms}</p>
+            <p className={styles.hotelLocation}><strong>Country:</strong> {hotel.country}</p>
+            <p className={styles.hotelLocation}><strong>City:</strong> {hotel.city}</p>
+            <p className={styles.hotelLocation}><strong>Ubicación:</strong> {hotel.location}</p>
+            <p className={styles.hotelPolicies}><strong>Políticas:</strong> {hotel.policies}</p>
             <p className={styles.hotelRating}>Puntuación: {hotel.rating} / 5</p>
   
-            <button className={styles.bookButton} onClick={() => handleReservation(hotel.id)}>
+            <button className={styles.bookButton} onClick={handleReservation}>
               Reservar
             </button>
           </div>
@@ -133,9 +128,5 @@ const DetalleHotel = () => {
       </div>
     );
   };
-  
-  const handleReservation = (hotelId) => {
-    alert(`Reserva realizada para el hotel con ID: ${hotelId}`);
-  };
-  
+
   export default DetalleHotel;

@@ -13,6 +13,7 @@ import (
 	servicesHotels "hotels-api/services/hotels"
 	servicesReservations "hotels-api/services/reservations"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -61,6 +62,15 @@ func main() {
 
 	// Rutas
 	router := gin.Default()
+
+	// Configuración de CORS
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3001", "*"}, // Permite localhost y cualquier origen
+		AllowMethods:     []string{"POST", "GET", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
 	// Rutas de Reservas y Hoteles (usando solo `hotel_id` en las rutas para evitar conflictos)
 	router.POST("/reservations", reservationsController.CreateReservation)

@@ -85,48 +85,26 @@ const mockHotels = [
       policies: 'Cancelación gratuita hasta 48 horas antes de la llegada. Check-in a partir de las 14:00, check-out antes de las 12:00.'
     }
   ];
-
+  
 
   const DetalleHotel = ({ isAuthenticated }) => {
     const { id } = useParams();
     const navigate = useNavigate();
     const hotel = mockHotels.find((hotel) => hotel.id === parseInt(id));
-
+  
     if (!hotel) {
       return <div>Hotel no encontrado</div>;
     }
-
-    const handleReservation = async () => {
+  
+    const handleReservation = () => {
       if (!isAuthenticated) {
         alert("Debes iniciar sesión para reservar.");
         navigate('/login');
       } else {
-        try {
-          const response = await fetch("http://localhost:8081/reservations", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              hotel_id: hotel.id,
-              user_id: "user123", // Asigna el ID del usuario autenticado
-              date: new Date().toISOString(), // Fecha de la reserva
-            }),
-          });
-
-          if (!response.ok) {  // Comprobar si la respuesta es exitosa
-            throw new Error("Error al realizar la reserva.");
-          }
-
-          alert(`Reserva realizada para el hotel con ID: ${hotel.id}`);
-        } catch (error) {
-          alert("Ocurrió un error al conectar con el servidor: " + error.message);
-        }
+        alert(`Reserva realizada para el hotel con ID: ${hotel.id}`);
       }
     };
-
-
-
+  
     return (
       <div className={styles.detailContainer}>
         <h1>{hotel.name}</h1>

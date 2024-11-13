@@ -39,6 +39,25 @@
   transition: background-color 0.3s ease;
 }
 
+/* Estilos adicionales para el botón de cerrar sesión */
+.navlinkButton {
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.5rem 0.8rem;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+  border-radius: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.navlinkButton:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  transition: background-color 0.3s ease;
+}
+
 .searchForm {
   display: flex;
   align-items: center;
@@ -72,5 +91,5 @@
 
 .dateInput:focus {
   outline: none;
-  border-color: #0079a8;
+  border-color: #0079a8;
 }

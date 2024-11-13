@@ -3,6 +3,8 @@ package hotels
 import (
 	"bytes"
 	"context"
+
+	//"crypto/des"
 	"encoding/json"
 	"fmt"
 	"search-api/dao/hotels"
@@ -37,13 +39,14 @@ func NewSolr(config SolrConfig) Solr {
 func (searchEngine Solr) Index(ctx context.Context, hotel hotels.Hotel) (string, error) {
 	// Prepare the document for Solr
 	doc := map[string]interface{}{
-		"id":        hotel.ID,
-		"name":      hotel.Name,
-		"address":   hotel.Address,
-		"city":      hotel.City,
-		"state":     hotel.State,
-		"rating":    hotel.Rating,
-		"amenities": hotel.Amenities,
+		"id":          hotel.ID,
+		"name":        hotel.Name,
+		"address":     hotel.Address,
+		"city":        hotel.City,
+		"state":       hotel.State,
+		"rating":      hotel.Rating,
+		"amenities":   hotel.Amenities,
+		"descripcion": hotel.Descripcion,
 	}
 
 	// Prepare the index request
@@ -78,13 +81,14 @@ func (searchEngine Solr) Index(ctx context.Context, hotel hotels.Hotel) (string,
 func (searchEngine Solr) Update(ctx context.Context, hotel hotels.Hotel) error {
 	// Prepare the document for Solr
 	doc := map[string]interface{}{
-		"id":        hotel.ID,
-		"name":      hotel.Name,
-		"address":   hotel.Address,
-		"city":      hotel.City,
-		"state":     hotel.State,
-		"rating":    hotel.Rating,
-		"amenities": hotel.Amenities,
+		"id":          hotel.ID,
+		"name":        hotel.Name,
+		"address":     hotel.Address,
+		"city":        hotel.City,
+		"state":       hotel.State,
+		"rating":      hotel.Rating,
+		"amenities":   hotel.Amenities,
+		"descripcion": hotel.Descripcion,
 	}
 
 	// Prepare the update request
@@ -148,7 +152,7 @@ func (searchEngine Solr) Delete(ctx context.Context, id string) error {
 
 func (searchEngine Solr) Search(ctx context.Context, query string, limit int, offset int) ([]hotels.Hotel, error) {
 	// Prepare the Solr query with limit and offset
-	solrQuery := fmt.Sprintf("q=(name:%s)&rows=%d&start=%d", query, limit, offset)
+	solrQuery := fmt.Sprintf("q=(name:*%s* OR descripcion:*%s*)&rows=%d&start=%d", query, query, limit, offset)
 
 	// Execute the search request
 	resp, err := searchEngine.Client.Query(ctx, searchEngine.Collection, solr.NewQuery(solrQuery))
@@ -173,16 +177,28 @@ func (searchEngine Solr) Search(ctx context.Context, query string, limit int, of
 				}
 			}
 		}
+		// Initialize descripcion slice
+		var descripcion []string
+
+		// Check if descripcion exist and handle different types
+		if descripcionData, ok := doc["descripcion"].([]interface{}); ok {
+			for _, descripcionItem := range descripcionData {
+				if descripcionStr, ok := descripcionItem.(string); ok {
+					descripcion = append(descripcion, descripcionStr)
+				}
+			}
+		}
 
 		// Safely extract hotel fields with type assertions
 		hotel := hotels.Hotel{
-			ID:        getStringField(doc, "id"),
-			Name:      getStringField(doc, "name"),
-			Address:   getStringField(doc, "address"),
-			City:      getStringField(doc, "city"),
-			State:     getStringField(doc, "state"),
-			Rating:    getFloatField(doc, "rating"),
-			Amenities: amenities,
+			ID:          getStringField(doc, "id"),
+			Name:        getStringField(doc, "name"),
+			Address:     getStringField(doc, "address"),
+			City:        getStringField(doc, "city"),
+			State:       getStringField(doc, "state"),
+			Rating:      getFloatField(doc, "rating"),
+			Amenities:   amenities,
+			Descripcion: descripcion,
 		}
 		hotelsList = append(hotelsList, hotel)
 	}

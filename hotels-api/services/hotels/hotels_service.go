@@ -50,24 +50,26 @@ func (service Service) GetHotelByID(ctx context.Context, id string) (hotelsDomai
 
 	// Convert DAO to DTO
 	return hotelsDomain.Hotel{
-		ID:        hotelDAO.ID.Hex(),
-		Name:      hotelDAO.Name,
-		Address:   hotelDAO.Address,
-		City:      hotelDAO.City,
-		State:     hotelDAO.State,
-		Rating:    hotelDAO.Rating,
-		Amenities: hotelDAO.Amenities,
+		ID:          hotelDAO.ID.Hex(),
+		Name:        hotelDAO.Name,
+		Address:     hotelDAO.Address,
+		City:        hotelDAO.City,
+		State:       hotelDAO.State,
+		Rating:      hotelDAO.Rating,
+		Amenities:   hotelDAO.Amenities,
+		Descripcion: hotelDAO.Descripcion,
 	}, nil
 }
 
 func (service Service) Create(ctx context.Context, hotel hotelsDomain.Hotel) (string, error) {
 	record := hotelsDAO.Hotel{
-		Name:      hotel.Name,
-		Address:   hotel.Address,
-		City:      hotel.City,
-		State:     hotel.State,
-		Rating:    hotel.Rating,
-		Amenities: hotel.Amenities,
+		Name:        hotel.Name,
+		Address:     hotel.Address,
+		City:        hotel.City,
+		State:       hotel.State,
+		Rating:      hotel.Rating,
+		Amenities:   hotel.Amenities,
+		Descripcion: hotel.Descripcion,
 	}
 	id, err := service.mainRepository.Create(ctx, record)
 	if err != nil {
@@ -99,13 +101,14 @@ func (service Service) Update(ctx context.Context, hotel hotelsDomain.Hotel) err
 		return fmt.Errorf("invalid ID format: %w", err)
 	}
 	record := hotelsDAO.Hotel{
-		ID:        objectID,
-		Name:      hotel.Name,
-		Address:   hotel.Address,
-		City:      hotel.City,
-		State:     hotel.State,
-		Rating:    hotel.Rating,
-		Amenities: hotel.Amenities,
+		ID:          objectID,
+		Name:        hotel.Name,
+		Address:     hotel.Address,
+		City:        hotel.City,
+		State:       hotel.State,
+		Rating:      hotel.Rating,
+		Amenities:   hotel.Amenities,
+		Descripcion: hotel.Descripcion,
 	}
 
 	// Update the hotel in the main repository

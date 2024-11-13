@@ -1,63 +1,50 @@
 .reservationsContainer {
-    padding: 40px;
-    background-color: #f9f9f9;
-    font-family: 'Lato', sans-serif;
-    color: #333;
-  }
-  
-  .heading {
-    text-align: center;
-    font-size: 2rem;
-    margin-bottom: 30px;
-  }
-  
-  .noReservations {
-    text-align: center;
-    font-size: 1.2rem;
-    color: #777;
-  }
-  
-  .reservationList {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-  
-  .reservationCard {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .hotelName {
-    font-size: 1.4rem;
-    font-weight: bold;
-    margin-bottom: 10px;
-  }
-  
-  .reservationDate {
-    font-size: 1.1rem;
-    color: #555;
-    margin-bottom: 10px;
-  }
-  
-  .reservationStatus {
-    font-size: 1.1rem;
-    font-weight: bold;
-  }
-  
-  .confirmada {
-    color: #28a745;
-  }
-  
-  .pendiente {
-    color: #ffc107;
-  }
-  
-  .cancelada {
-    color: #dc3545;
-  }
-  
+  padding: 20px;
+  background-color: #fafafa;
+  font-family: 'Lato', sans-serif;
+  color: #333;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.heading {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 25px;
+  color: #00458a;
+}
+
+.noReservations {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #777;
+}
+
+.reservationList {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.reservationCard {
+  background-color: #ffffff;
+  padding: 15px;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.reservationCard:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.hotelName {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.reservationDate {
+  font-size: 1rem;
+  color: #555;
+}

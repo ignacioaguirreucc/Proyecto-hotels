@@ -57,7 +57,9 @@ func (repository Mock) Update(ctx context.Context, hotel hotelsDAO.Hotel) error 
 	if len(hotel.Amenities) > 0 {
 		currentHotel.Amenities = hotel.Amenities
 	}
-
+	if len(hotel.Descripcion) > 0 {
+		currentHotel.Descripcion = hotel.Descripcion
+	}
 	// Save the updated hotel back to the mock storage
 	repository.docs[hotel.ID.Hex()] = currentHotel
 	return nil

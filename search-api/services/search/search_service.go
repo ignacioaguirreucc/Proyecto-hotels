@@ -41,13 +41,14 @@ func (service Service) Search(ctx context.Context, query string, offset int, lim
 	hotelsDomainList := make([]hotelsDomain.Hotel, 0)
 	for _, hotel := range hotelsDAOList {
 		hotelsDomainList = append(hotelsDomainList, hotelsDomain.Hotel{
-			ID:        hotel.ID,
-			Name:      hotel.Name,
-			Address:   hotel.Address,
-			City:      hotel.City,
-			State:     hotel.State,
-			Rating:    hotel.Rating,
-			Amenities: hotel.Amenities,
+			ID:          hotel.ID,
+			Name:        hotel.Name,
+			Address:     hotel.Address,
+			City:        hotel.City,
+			State:       hotel.State,
+			Rating:      hotel.Rating,
+			Amenities:   hotel.Amenities,
+			Descripcion: hotel.Descripcion,
 		})
 	}
 
@@ -65,13 +66,14 @@ func (service Service) HandleHotelNew(hotelNew hotelsDomain.HotelNew) {
 		}
 
 		hotelDAO := hotelsDAO.Hotel{
-			ID:        hotel.ID,
-			Name:      hotel.Name,
-			Address:   hotel.Address,
-			City:      hotel.City,
-			State:     hotel.State,
-			Rating:    hotel.Rating,
-			Amenities: hotel.Amenities,
+			ID:          hotel.ID,
+			Name:        hotel.Name,
+			Address:     hotel.Address,
+			City:        hotel.City,
+			State:       hotel.State,
+			Rating:      hotel.Rating,
+			Amenities:   hotel.Amenities,
+			Descripcion: hotel.Descripcion,
 		}
 
 		// Handle Index operation

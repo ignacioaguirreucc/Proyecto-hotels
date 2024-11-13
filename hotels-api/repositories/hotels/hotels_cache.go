@@ -94,6 +94,9 @@ func (repository Cache) Update(ctx context.Context, hotel hotelsDAO.Hotel) error
 	if len(hotel.Amenities) > 0 {
 		currentHotel.Amenities = hotel.Amenities
 	}
+	if len(hotel.Descripcion) > 0 {
+		currentHotel.Descripcion = hotel.Descripcion
+	}
 
 	// Update the cache with the new hotel data and reset the expiration timer
 	repository.client.Set(key, currentHotel, repository.duration)

@@ -118,6 +118,9 @@ func (repository Mongo) Update(ctx context.Context, hotel hotelsDAO.Hotel) error
 	if len(hotel.Amenities) > 0 { // Assuming empty slice is the default for Amenities
 		update["amenities"] = hotel.Amenities
 	}
+	if len(hotel.Descripcion) > 0 { // Assuming empty slice is the default for Descripcion
+		update["descripcion"] = hotel.Descripcion
+	}
 
 	// Update the document in MongoDB
 	if len(update) == 0 {

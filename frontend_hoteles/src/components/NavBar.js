@@ -12,7 +12,11 @@ const NavBar = ({ isAuthenticated, onLogout }) => {
         {isAuthenticated ? (
           <>
             <li><Link to="/mis-reservas">Mis Reservas</Link></li>
-            <li><button onClick={onLogout}>Cerrar Sesión</button></li>
+            <li>
+              <button className={styles.navlinkButton} onClick={onLogout}>
+                Cerrar Sesión
+              </button>
+            </li>
           </>
         ) : (
           <>
@@ -25,4 +29,4 @@ const NavBar = ({ isAuthenticated, onLogout }) => {
   );
 };
 
-export default NavBar;
+export default NavBar;

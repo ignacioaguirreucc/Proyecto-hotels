@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from '../axiosConfig'; // Usa la configuración de axios con el backend
+import {axiosUsersInstance} from '../axiosConfig'; // Usa la configuración de axios con el backend
 import styles from './IniciarSesion.module.css'; 
 import { FaUser, FaLock } from "react-icons/fa";
 
@@ -20,7 +20,7 @@ const IniciarSesion = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/users', {
+      const response = await axiosUsersInstance.post('/users', {
         username: formData.username,
         password: formData.password,
       });

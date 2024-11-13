@@ -5,8 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/stevenferrer/solr-go"
 	"search-api/dao/hotels"
+
+	"github.com/stevenferrer/solr-go"
 )
 
 type SolrConfig struct {

@@ -17,7 +17,7 @@ const mockHotels = [
     policies: 'Cancelación gratuita hasta 48 horas antes de la llegada. Check-in a partir de las 15:00, check-out antes de las 12:00.'
   },
   {
-    id: 2,
+    id: '6733eb1ca7534956b80f4d87',
     name: 'Hotel Vista Sol',
     description: 'Hotel all-inclusive con todas las comodidades.',
     rating: 4.0,

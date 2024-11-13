@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from '../axiosConfig'; // Usa la configuración de axios con el backend
+import {axiosUsersInstance} from '../axiosConfig'; // Usa la configuración de axios con el backend
 import { Link } from 'react-router-dom';
 import styles from './Login.module.css'; 
 import { FaUser, FaLock } from "react-icons/fa";
@@ -23,11 +23,12 @@ const Login = ({onLogin}) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/login', {
+      const response = await axiosUsersInstance.post('/login', {
         username: formData.username,
         password: formData.password,
       });
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user_id', response.data.user_id); // Guarda el user_id
       setMessage('Inicio de sesión exitoso.');
       onLogin();  // Actualiza el estado de autenticación en App.js
       navigate('/');  // Redirige al usuario a la página de inicio

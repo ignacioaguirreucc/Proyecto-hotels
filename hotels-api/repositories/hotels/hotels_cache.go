@@ -87,6 +87,7 @@ func (repository Cache) Update(ctx context.Context, hotel hotelsDAO.Hotel) error
 	if hotel.State != "" {
 		currentHotel.State = hotel.State
 	}
+
 	if hotel.Rating != 0 {
 		currentHotel.Rating = hotel.Rating
 	}

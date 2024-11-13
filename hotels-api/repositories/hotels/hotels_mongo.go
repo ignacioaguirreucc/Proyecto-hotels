@@ -108,6 +108,7 @@ func (repository Mongo) Update(ctx context.Context, hotel hotelsDAO.Hotel) error
 	if hotel.City != "" {
 		update["city"] = hotel.City
 	}
+
 	if hotel.State != "" {
 		update["state"] = hotel.State
 	}

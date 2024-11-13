@@ -16,4 +16,11 @@ const axiosHotelsInstance = axios.create({
   },
 });
 
-export { axiosUsersInstance, axiosHotelsInstance };
+const axiosSearchInstance = axios.create({
+  baseURL: process.env.REACT_APP_SEARCH_API || 'http://localhost:8082', // Configuración para desarrollo local
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+export { axiosUsersInstance, axiosHotelsInstance ,axiosSearchInstance};

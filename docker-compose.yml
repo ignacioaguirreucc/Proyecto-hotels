@@ -120,6 +120,7 @@ services:
     environment:
     - REACT_APP_USERS_API=http://users-api:8080
      - REACT_APP_HOTELS_API=http://hotels-api:8081
+     REACT_APP_SEARCH_API=http://search-api:8082
 
 networks:
   app-network:

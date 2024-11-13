@@ -1,17 +1,19 @@
 .reservationsContainer {
-  padding: 20px;
+  padding: 30px;
   background-color: #fafafa;
   font-family: 'Lato', sans-serif;
   color: #333;
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
 }
 
 .heading {
+  font-size: 2rem;
   text-align: center;
-  font-size: 1.8rem;
-  margin-bottom: 25px;
   color: #00458a;
+  margin-bottom: 20px;
 }
 
 .noReservations {
@@ -23,28 +25,28 @@
 .reservationList {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 20px;
 }
 
 .reservationCard {
-  background-color: #ffffff;
+  background-color: white;
   padding: 15px;
-  border-radius: 6px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 .reservationCard:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
 }
 
 .hotelName {
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   font-weight: bold;
-  margin-bottom: 5px;
 }
 
 .reservationDate {
+  color: #555;
   font-size: 1rem;
-  color: #555;
 }

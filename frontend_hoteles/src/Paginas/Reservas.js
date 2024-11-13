@@ -10,7 +10,7 @@ const Reservas = () => {
     const fetchReservations = async () => {
       try {
         const token = localStorage.getItem('token');
-        const userId = localStorage.getItem('user_id'); // Recupera el user_id guardado
+        const userId = localStorage.getItem('user_id');
 
         if (!userId) {
           setError('No se pudo encontrar el ID del usuario. Intenta iniciar sesión de nuevo.');
@@ -18,12 +18,33 @@ const Reservas = () => {
         }
 
         // Solicita las reservas usando el user_id
-        const response = await axiosHotelsInstance.get(`/users/${userId}/reservations`, {
+        const reservationsResponse = await axiosHotelsInstance.get(`/users/${userId}/reservations`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
-        setReservations(response.data || []);
+
+        const reservationsData = reservationsResponse.data || [];
+
+        // Obtén el nombre del hotel para cada reserva
+        const reservationsWithHotelNames = await Promise.all(
+          reservationsData.map(async (reservation) => {
+            try {
+              const hotelResponse = await axiosHotelsInstance.get(`/hotels/${reservation.hotel_id}`, {
+                headers: {
+                  Authorization: `Bearer ${token}`
+                }
+              });
+              const hotelName = hotelResponse.data.name;
+              return { ...reservation, hotelName };
+            } catch (err) {
+              console.error(`Error al obtener el hotel para la reserva ${reservation.id}`, err);
+              return { ...reservation, hotelName: 'Nombre del hotel no disponible' };
+            }
+          })
+        );
+
+        setReservations(reservationsWithHotelNames);
       } catch (err) {
         setError('Error al cargar reservas. Intenta nuevamente.');
       }

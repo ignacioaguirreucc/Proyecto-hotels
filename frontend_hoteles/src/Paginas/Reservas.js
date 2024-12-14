@@ -54,6 +54,7 @@ const Reservas = () => {
   }, []);
 
   return (
+    <div className={styles.fullScreenBackground}>
     <div className={styles.reservationsContainer}>
       <h1 className={styles.heading}>Mis Reservas</h1>
       {error && <p className={styles.error}>{error}</p>}
@@ -70,6 +71,7 @@ const Reservas = () => {
           ))}
         </div>
       )}
+    </div>
     </div>
   );
 };

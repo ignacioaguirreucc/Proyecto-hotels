@@ -54,6 +54,7 @@ const DetalleHotel = ({ isAuthenticated }) => {
   if (!hotel) return <div>Cargando...</div>;
 
   return (
+    <div className={styles.fullScreenBackground}>
     <div className={styles.detailContainer}>
       <h1>{hotel.name}</h1>
       <div className={styles.detailContent}>
@@ -66,6 +67,7 @@ const DetalleHotel = ({ isAuthenticated }) => {
           Reservar
         </button>
       </div>
+    </div>
     </div>
   );
 };

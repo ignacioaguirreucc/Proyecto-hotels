@@ -7,7 +7,7 @@ const NavBar = ({ isAuthenticated, onLogout }) => {
   return (
     <nav className={styles.navbar}>
       <ul className={styles.navlinks}>
-        <li><Link to="/">Hogar</Link></li>
+        <li><Link to="/home">Hogar</Link></li>
         <li><Link to="/hoteles">Resultados</Link></li>
         {isAuthenticated ? (
           <>
@@ -29,4 +29,4 @@ const NavBar = ({ isAuthenticated, onLogout }) => {
   );
 };
 
-export default NavBar;
+export default NavBar;

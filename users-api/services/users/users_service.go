@@ -242,6 +242,11 @@ func (service Service) Login(username string, password string) (domain.LoginResp
 		return domain.LoginResponse{}, fmt.Errorf("invalid credentials")
 	}
 
+	// Set default user type if not set
+	if user.Tipo == "" {
+		user.Tipo = "cliente"
+	}
+
 	// Generate token
 	token, err := service.tokenizer.GenerateToken(user.Username, user.ID, user.Tipo)
 	if err != nil {
@@ -253,6 +258,7 @@ func (service Service) Login(username string, password string) (domain.LoginResp
 		UserID:   user.ID,
 		Username: user.Username,
 		Token:    token,
+		Tipo:     user.Tipo,
 	}, nil
 }
 

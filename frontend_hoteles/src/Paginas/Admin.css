@@ -1,0 +1,143 @@
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.createButton {
+    display: block;
+    margin: 0 auto 20px auto;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.createButton:hover {
+    background-color: #0056b3;
+}
+
+.hotelList {
+    list-style-type: none;
+    padding: 0;
+}
+
+.hotelItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+}
+
+.hotelItem div {
+    display: flex;
+    flex-direction: column;
+}
+
+.hotelItem strong {
+    font-size: 18px;
+}
+
+.editButton, .deleteButton {
+    padding: 5px 10px;
+    margin-left: 10px;
+    cursor: pointer;
+    border: none;
+    font-size: 14px;
+}
+
+.editButton {
+    background-color: #ffc107;
+    color: #fff;
+}
+
+.editButton:hover {
+    background-color: #e0a800;
+}
+
+.deleteButton {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.deleteButton:hover {
+    background-color: #c82333;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modalContent {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    width: 400px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.modalContent h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.modalContent form {
+    display: flex;
+    flex-direction: column;
+}
+
+.modalContent input {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+.modalActions {
+    display: flex;
+    justify-content: space-between;
+}
+
+.saveButton {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.saveButton:hover {
+    background-color: #218838;
+}
+
+.cancelButton {
+    background-color: #6c757d;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.cancelButton:hover {
+    background-color: #5a6268;
+}

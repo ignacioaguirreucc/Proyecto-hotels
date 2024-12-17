@@ -15,6 +15,15 @@ const axiosHotelsInstance = axios.create({
     'Content-Type': 'application/json',
   },
 });
+axiosHotelsInstance.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
 
 const axiosSearchInstance = axios.create({
   baseURL: process.env.REACT_APP_SEARCH_API || 'http://localhost:8082', // Configuración para desarrollo local

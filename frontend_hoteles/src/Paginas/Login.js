@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import {axiosUsersInstance} from '../axiosConfig'; // Usa la configuración de axios con el backend
+import { axiosUsersInstance } from '../axiosConfig';
 import { Link } from 'react-router-dom';
 import styles from './Login.module.css'; 
 import { FaUser, FaLock } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 
-
-const Login = ({onLogin}) => {
+const Login = ({ onLogin }) => {
   const [formData, setFormData] = useState({
     username: '',
     password: ''
   });
-  const [message, setMessage] = useState('');  // Estado para el mensaje de éxito o error
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -27,12 +27,29 @@ const Login = ({onLogin}) => {
         username: formData.username,
         password: formData.password,
       });
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user_id', response.data.user_id); // Guarda el user_id
+
+      const { token, user_id, tipo } = response.data;
+
+      // Guarda el token y el user_id en el almacenamiento local
+      localStorage.setItem('token', token);
+      localStorage.setItem('user_id', user_id);
+      localStorage.setItem('tipo', tipo); 
+
+      // Actualiza el estado de autenticación en el componente padre
+      onLogin();
+
+      // Redirige según el tipo de usuario
+      if (tipo === 'administrador') {
+        navigate('/admin'); // Página Home para clientes
+      } else if (tipo === 'cliente') {
+        navigate('/home'); // Página Admin para administradores
+      } else {
+        throw new Error('Tipo de usuario desconocido'); // Manejo para tipos inesperados
+      }
+
       setMessage('Inicio de sesión exitoso.');
-      onLogin();  // Actualiza el estado de autenticación en App.js
-      navigate('/');  // Redirige al usuario a la página de inicio
     } catch (error) {
+      console.error('Error al iniciar sesión:', error);
       setMessage('Error al iniciar sesión: ' + (error.response?.data?.error || 'Ocurrió un error'));
     }
   };
@@ -66,7 +83,7 @@ const Login = ({onLogin}) => {
               <FaLock className={styles.icon} />
             </div>
             <button type="submit">Iniciar Sesión</button>
-            {message && <p className={styles.message}>{message}</p>}  {/* Muestra el mensaje */}
+            {message && <p className={styles.message}>{message}</p>}
           </form>
           <div className={styles['register-link']}>
             <p>¿No tienes cuenta? <Link to="/registro">Regístrate</Link></p>

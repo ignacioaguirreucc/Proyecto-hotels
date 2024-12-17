@@ -8,6 +8,7 @@ import Login from './Paginas/Login'; // Asegúrate de que esta importación est�
 import Registro from './Paginas/IniciarSesion';
 import MisReservas from './Paginas/Reservas';
 import DetalleHotel from './Paginas/DetalleHotel';
+import Admin from './Paginas/Admin';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -17,8 +18,10 @@ function App() {
     setIsAuthenticated(!!token);
   }, []);
 
-  const handleLogin = () => {
+  const handleLogin = (tipo) => {
     setIsAuthenticated(true);
+    // Guarda el tipo de usuario en el estado para usarlo en NavBar y otras partes
+    localStorage.setItem('user_tipo', tipo);
   };
 
   const handleLogout = () => {
@@ -31,7 +34,7 @@ function App() {
       <Router>
         <NavBar isAuthenticated={isAuthenticated} onLogout={handleLogout} />
         <Routes>
-          <Route path="/" element={<Home />} />
+          
           <Route path="/hoteles" element={<Hoteles />} />
           <Route path="/login" element={<Login onLogin={handleLogin} />} /> {/* Asegúrate de pasar onLogin aquí */}
           <Route path="/registro" element={<Registro />} />
@@ -43,6 +46,9 @@ function App() {
             path="/detalle-hotel/:id" 
             element={<DetalleHotel isAuthenticated={isAuthenticated} />} 
           />
+          <Route path="/home" element={<Home />} />
+
+          <Route exact path="/admin" element={<Admin />} />
         </Routes>
       </Router>
     </div>

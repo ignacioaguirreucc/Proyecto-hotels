@@ -8,6 +8,7 @@ import (
 	"hotels-api/clients/queues"
 	controllersHotels "hotels-api/controllers/hotels"
 	controllersReservations "hotels-api/controllers/reservations"
+	middleware "hotels-api/middlewares"
 	repositoriesHotels "hotels-api/repositories/hotels"
 	repositoriesReservations "hotels-api/repositories/reservations"
 	servicesHotels "hotels-api/services/hotels"
@@ -60,6 +61,8 @@ func main() {
 	hotelsController := controllersHotels.NewController(hotelsService)
 	reservationsController := controllersReservations.NewController(reservationsService)
 
+	jwtMiddleware := middleware.NewJWTMiddleware("ThisIsAnExampleJWTKey!")
+
 	// Rutas
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -70,12 +73,19 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
+	adminRoutes := router.Group("/hotels")
+	adminRoutes.Use(jwtMiddleware.Authenticate(), middleware.AdminOnly())
+	{
+		adminRoutes.POST("", hotelsController.Create)
+		adminRoutes.DELETE("/:hotel_id", hotelsController.Delete)
+		adminRoutes.PUT("/:hotel_id", hotelsController.Update)
+	}
 	// Rutas de Reservas y Hoteles (usando solo `hotel_id` en las rutas para evitar conflictos)
 	router.POST("/reservations", reservationsController.CreateReservation)
 	router.GET("/hotels/:hotel_id", hotelsController.GetHotelByID)
-	router.POST("/hotels", hotelsController.Create)
-	router.PUT("/hotels/:hotel_id", hotelsController.Update)
-	router.DELETE("/hotels/:hotel_id", hotelsController.Delete)
+	//router.POST("/hotels", hotelsController.Create)
+	//router.PUT("/hotels/:hotel_id", hotelsController.Update)
+	//router.DELETE("/hotels/:hotel_id", hotelsController.Delete)
 	router.GET("/users/:user_id/reservations", reservationsController.GetReservationsByUserID)
 
 	// Ejecutar servidor

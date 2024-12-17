@@ -6,6 +6,7 @@ import (
 	"fmt"
 	dao "users-api/dao/users"
 	domain "users-api/domain/users"
+	//"github.com/golang-jwt/jwt/v5" Ensure this import is present
 )
 
 type Repository interface {
@@ -18,7 +19,7 @@ type Repository interface {
 }
 
 type Tokenizer interface {
-	GenerateToken(username string, userID int64) (string, error)
+	GenerateToken(username string, userID int64, userType string) (string, error) // Actualiza la firma
 }
 
 type Service struct {
@@ -242,7 +243,7 @@ func (service Service) Login(username string, password string) (domain.LoginResp
 	}
 
 	// Generate token
-	token, err := service.tokenizer.GenerateToken(user.Username, user.ID)
+	token, err := service.tokenizer.GenerateToken(user.Username, user.ID, user.Tipo)
 	if err != nil {
 		return domain.LoginResponse{}, fmt.Errorf("error generating token: %w", err)
 	}

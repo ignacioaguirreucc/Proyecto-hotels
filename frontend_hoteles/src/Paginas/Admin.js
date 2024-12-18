@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { axiosHotelsInstance, axiosSearchInstance } from '../axiosConfig';
-import styles from './Admin.css';
+import styles from './Admin.module.css';
+
 
 const Admin = () => {
   const [hotels, setHotels] = useState([]);
@@ -46,52 +47,56 @@ const Admin = () => {
     fetchHotels();
   }, []);
 
-  // Crear o editar un hotel
-  const handleSubmit = async (e) => {
-    e.preventDefault();
   
-    const dataToSend = {
-      name: formData.name,
-      address: formData.address,
-      city: formData.city,
-      state: formData.state,
-      amenities: formData.amenities.split(',').map((amenity) => amenity.trim()),
-      descripcion: formData.descripcion.split(',').map((descripcion) => descripcion.trim()),
-      rating: parseFloat(formData.rating),
-    };
-  
-    console.log('Datos enviados al backend:', dataToSend);
-  
-    try {
-      if (formData.id) {
-        // PUT request para actualizar un hotel existente usando formData.id
-        await axiosHotelsInstance.put(`/hotels/${formData.id}`, dataToSend);
-      } else {
-        // POST request para crear un hotel nuevo
-        await axiosHotelsInstance.post('/hotels', dataToSend);
-      }
-      fetchHotels();
-      closeModal();
-      window.location.reload(); // Refrescar la página después de la operación
-    } catch (error) {
-      console.error('Error al guardar hotel:', error);
-    }
+// Crear o editar un hotel
+// Crear o editar un hotel
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const dataToSend = {
+    name: formData.name,
+    address: formData.address,
+    city: formData.city,
+    state: formData.state,
+    amenities: formData.amenities.split(',').map((amenity) => amenity.trim()),
+    descripcion: formData.descripcion.split(',').map((desc) => desc.trim()),
+    rating: parseFloat(formData.rating),
   };
-  
+
+  try {
+    if (formData.id) {
+      // PUT request para actualizar un hotel existente usando formData.id
+      await axiosHotelsInstance.put(`/hotels/${formData.id}`, dataToSend);
+      console.log('Hotel actualizado correctamente');
+    } else {
+      // POST request para crear un hotel nuevo
+      await axiosHotelsInstance.post('/hotels', dataToSend);
+      console.log('Hotel creado correctamente');
+    }
+
+    await fetchHotels(); // Refrescar la lista de hoteles después de crear o editar
+    closeModal(); // Cierra el modal después de guardar
+  } catch (error) {
+    console.error('Error al guardar hotel:', error);
+    alert('Ocurrió un error al guardar el hotel. Inténtalo de nuevo.');
+  }
+};
+
+
   
   
   
 
   // Eliminar un hotel
-  const deleteHotel = async (id) => {
-    try {
-      await axiosHotelsInstance.delete(`/hotels/${id}`);
-      fetchHotels(); // Actualizar lista
-      window.location.reload();
-    } catch (error) {
-      console.error('Error al eliminar hotel:', error);
-    }
-  };
+const deleteHotel = async (id) => {
+  try {
+    await axiosHotelsInstance.delete(`/hotels/${id}`);
+    // Actualizar la lista de hoteles eliminando el hotel con el id correspondiente
+    setHotels((prevHotels) => prevHotels.filter((hotel) => hotel.id !== id));
+  } catch (error) {
+    console.error('Error al eliminar hotel:', error);
+  }
+};
 
   // Manejo del formulario
   const handleChange = (e) => {

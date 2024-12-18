@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # Base de datos MySQL
   mysql:
     image: mysql:latest
     container_name: mysql-container
@@ -11,10 +12,11 @@ services:
       MYSQL_DATABASE: users_api
       MYSQL_PASSWORD: root
     volumes:
-      - mysql-data:/var/lib/mysql  # Persistencia de datos
+      - mysql-data:/var/lib/mysql
     networks:
       - app-network
 
+  # Cache Memcached
   memcached:
     image: memcached:latest
     container_name: memcached-container
@@ -23,6 +25,7 @@ services:
     networks:
       - app-network
 
+  # MongoDB para hotels-api
   mongo:
     image: mongo:4
     container_name: mongo-container
@@ -34,6 +37,7 @@ services:
     networks:
       - app-network
 
+  # RabbitMQ
   rabbitmq:
     image: rabbitmq:management
     container_name: rabbit-container
@@ -47,6 +51,7 @@ services:
     networks:
       - app-network
 
+  # Solr para búsqueda
   solr:
     image: solr:latest
     container_name: solr-container
@@ -58,15 +63,16 @@ services:
     networks:
       - app-network
 
+  # Primera instancia de users-api
   users-api:
     image: users-api:latest
     container_name: users-api-container
     build:
       context: ./users-api
       dockerfile: Dockerfile
+    command: /bin/sh -c "sleep 20 && until nc -z mysql 3306; do sleep 1; done && go run main.go"
     ports:
       - "8080:8080"
-    command: /bin/sh -c "sleep 20 && until nc -z mysql 3306; do sleep 1; done && go run main.go"
     depends_on:
       - mysql
       - memcached
@@ -74,6 +80,38 @@ services:
       - app-network
     restart: on-failure
 
+  # Segunda instancia de users-api
+  users-api-2:
+    image: users-api:latest
+    container_name: users-api-container-2
+    build:
+      context: ./users-api
+      dockerfile: Dockerfile
+    command: /bin/sh -c "sleep 20 && until nc -z mysql 3306; do sleep 1; done && go run main.go"
+    ports:
+      - "8083:8080" # Puerto adicional para pruebas individuales
+    depends_on:
+      - mysql
+      - memcached
+    networks:
+      - app-network
+    restart: on-failure
+
+  # NGINX como balanceador de carga
+  nginx:
+    image: nginx:latest
+    container_name: nginx-container
+    ports:
+      - "8085:80" # Exponer el puerto 8085 para NGINX
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - users-api
+      - users-api-2
+    networks:
+      - app-network
+
+  # hotels-api
   hotels-api:
     image: hotels-api:latest
     container_name: hotels-api-container
@@ -81,7 +119,7 @@ services:
       context: ./hotels-api
     ports:
       - "8081:8081"
-    command: /bin/sh -c "sleep 10 && until nc -z rabbit-container 5672; do sleep 1; done && go run main.go"
+    command: /bin/sh -c "sleep 10 && until nc -z rabbitmq 5672; do sleep 1; done && go run main.go"
     depends_on:
       - mongo
       - rabbitmq
@@ -89,6 +127,7 @@ services:
       - app-network
     restart: on-failure
 
+  # search-api
   search-api:
     image: search-api:latest
     container_name: search-api-container
@@ -96,7 +135,7 @@ services:
       context: ./search-api
     ports:
       - "8082:8082"
-    command: /bin/sh -c "sleep 10 && until nc -z rabbit-container 5672; do sleep 1; done && go run main.go"
+    command: /bin/sh -c "sleep 10 && until nc -z rabbitmq 5672; do sleep 1; done && go run main.go"
     depends_on:
       - rabbitmq
       - solr
@@ -104,23 +143,23 @@ services:
       - app-network
     restart: on-failure
 
+  # Frontend (React)
   frontend_hoteles:
     image: frontend_hoteles:latest
     container_name: frontend_hoteles
     build:
       context: ./frontend_hoteles
     ports:
-      - "3001:80"
-    command: /bin/sh -c "npm install && npm start"
+      - "3001:3000" # Mapeo para el servidor de desarrollo de React
     depends_on:
-      - users-api
+      - nginx
     networks:
       - app-network
     restart: on-failure
     environment:
-    - REACT_APP_USERS_API=http://users-api:8080
-     - REACT_APP_HOTELS_API=http://hotels-api:8081
-     REACT_APP_SEARCH_API=http://search-api:8082
+      - REACT_APP_USERS_API=http://nginx:8085
+      - REACT_APP_HOTELS_API=http://hotels-api:8081
+      - REACT_APP_SEARCH_API=http://search-api:8082
 
 networks:
   app-network:

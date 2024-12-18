@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-// Axios instance for USERS_API
+// Axios instance for USERS_API (ahora conectado a NGINX)
 const axiosUsersInstance = axios.create({
-  baseURL: process.env.REACT_APP_USERS_API || 'http://localhost:8080', // Configuración para desarrollo local
+  baseURL: process.env.REACT_APP_USERS_API || 'http://localhost:8085', // Configuración para desarrollo local
   headers: {
     'Content-Type': 'application/json',
   },

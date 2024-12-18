@@ -11,6 +11,6 @@ func NewMock() *Mock {
 }
 
 func (m *Mock) GenerateToken(username string, userID int64, userType string) (string, error) {
-	args := m.Called(username, userID)
+	args := m.Called(username, userID, userType) // Agregar el tercer argumento
 	return args.String(0), args.Error(1)
 }

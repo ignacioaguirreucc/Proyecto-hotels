@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"strings"
 	dao "users-api/dao/users"
 	domain "users-api/domain/users"
 	//"github.com/golang-jwt/jwt/v5" Ensure this import is present
@@ -123,6 +124,11 @@ func (service Service) GetByUsername(username string) (domain.User, error) {
 }
 
 func (service Service) Create(user domain.User) (int64, error) {
+	// Validación de entrada
+	if user.Username == "" || user.Password == "" {
+		return 0, fmt.Errorf("invalid input: username and password cannot be empty")
+	}
+
 	// Hash the password
 	passwordHash := Hash(user.Password)
 
@@ -150,6 +156,14 @@ func (service Service) Create(user domain.User) (int64, error) {
 }
 
 func (service Service) Update(user domain.User) error {
+	// Validaciones de entrada
+	if user.Username == "" {
+		return fmt.Errorf("invalid input: username cannot be empty")
+	}
+	if user.ID == 0 {
+		return fmt.Errorf("invalid input: user ID cannot be zero")
+	}
+
 	// Hash the password if provided
 	var passwordHash string
 	if user.Password != "" {
@@ -189,71 +203,83 @@ func (service Service) Update(user domain.User) error {
 }
 
 func (service Service) Delete(id int64) error {
-	// Delete from main repository
-	err := service.mainRepository.Delete(id)
-	if err != nil {
-		return fmt.Errorf("error deleting user: %w", err)
+	// Intenta borrar en el repositorio principal
+	if err := service.mainRepository.Delete(id); err != nil {
+		return fmt.Errorf("error deleting user: %w", err) // Detiene la ejecución en caso de error
 	}
 
-	// Delete from cache and memcached
+	// Inicializa los errores secundarios
+	var errs []string
+
+	// Intenta borrar en el caché
 	if err := service.cacheRepository.Delete(id); err != nil {
-		return fmt.Errorf("error deleting user from cache: %w", err)
+		errs = append(errs, fmt.Sprintf("error deleting user from cache: %s", err.Error()))
 	}
+
+	// Intenta borrar en Memcached
 	if err := service.memcachedRepository.Delete(id); err != nil {
-		return fmt.Errorf("error deleting user from memcached: %w", err)
+		errs = append(errs, fmt.Sprintf("error deleting user from memcached: %s", err.Error()))
+	}
+
+	// Combina los errores secundarios si existen
+	if len(errs) > 0 {
+		return fmt.Errorf(strings.Join(errs, "; "))
 	}
 
 	return nil
 }
 
 func (service Service) Login(username string, password string) (domain.LoginResponse, error) {
-	// Hash the password
+	// Hash del password ingresado
 	passwordHash := Hash(password)
 
-	// Try to get user from cache repository first
-	user, err := service.cacheRepository.GetByUsername(username)
+	var user dao.User
+	var err error
+
+	// Busca en caché primero
+	user, err = service.cacheRepository.GetByUsername(username)
 	if err != nil {
-		// If not found in cache, try to get user from memcached repository
+		// Si no está en caché, busca en Memcached
 		user, err = service.memcachedRepository.GetByUsername(username)
 		if err != nil {
-			// If not found in memcached, try to get user from the main repository (database)
+			// Si tampoco está en Memcached, busca en el repositorio principal
 			user, err = service.mainRepository.GetByUsername(username)
 			if err != nil {
 				return domain.LoginResponse{}, fmt.Errorf("error getting user by username from main repository: %w", err)
 			}
 
-			// Save the found user in both cache and memcached repositories
+			// Guarda en caché y Memcached
 			if _, err := service.cacheRepository.Create(user); err != nil {
-				return domain.LoginResponse{}, fmt.Errorf("error caching user in cache repository: %w", err)
+				// Manejo del error de guardado en caché (opcional)
 			}
 			if _, err := service.memcachedRepository.Create(user); err != nil {
-				return domain.LoginResponse{}, fmt.Errorf("error caching user in memcached repository: %w", err)
+				// Manejo del error de guardado en Memcached (opcional)
 			}
 		} else {
-			// Save the found user in the cache repository for future access
+			// Guarda en caché si se encontró en Memcached
 			if _, err := service.cacheRepository.Create(user); err != nil {
-				return domain.LoginResponse{}, fmt.Errorf("error caching user in cache repository: %w", err)
+				// Manejo del error de guardado en caché (opcional)
 			}
 		}
 	}
 
-	// Compare passwords
+	// Compara contraseñas
 	if user.Password != passwordHash {
 		return domain.LoginResponse{}, fmt.Errorf("invalid credentials")
 	}
 
-	// Set default user type if not set
+	// Establece el tipo de usuario por defecto si no está definido
 	if user.Tipo == "" {
 		user.Tipo = "cliente"
 	}
 
-	// Generate token
+	// Genera el token
 	token, err := service.tokenizer.GenerateToken(user.Username, user.ID, user.Tipo)
 	if err != nil {
 		return domain.LoginResponse{}, fmt.Errorf("error generating token: %w", err)
 	}
 
-	// Send the login response
+	// Retorna la respuesta de login
 	return domain.LoginResponse{
 		UserID:   user.ID,
 		Username: user.Username,

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { axiosHotelsInstance, axiosSearchInstance } from '../axiosConfig';
 import styles from './Admin.module.css';
+import axios from 'axios';
 
 
 const Admin = () => {
   const [hotels, setHotels] = useState([]);
+  const [containerCounts, setContainerCounts] = useState({}); // Estado para almacenar las instancias por imagen
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -43,8 +45,30 @@ const Admin = () => {
     }
   };
 
+  const fetchContainerCounts = async () => {
+    try {
+      const response = await axios.get('/containers/json');
+
+      console.log('Contenedores desde Docker API:', response.data); // Debug
+      const containers = response.data;
+  
+      const counts = containers.reduce((acc, container) => {
+        const image = container.Image;
+        acc[image] = (acc[image] || 0) + 1;
+        return acc;
+      }, {});
+  
+      console.log('Conteo de contenedores por imagen:', counts); // Debug
+      setContainerCounts(counts);
+    } catch (err) {
+      console.error('Error al obtener contenedores de Docker:', err);
+    }
+  };
+  
+
   useEffect(() => {
     fetchHotels();
+    fetchContainerCounts();
   }, []);
 
   
@@ -185,6 +209,17 @@ const deleteHotel = async (id) => {
     <p>No se encontraron hoteles.</p>
   )}
 </ul>
+
+
+<h2>Instancias de Docker</h2>
+      <ul>
+        {Object.entries(containerCounts).map(([image, count]) => (
+          <li key={image}>
+            <strong>{image}:</strong> {count} instancia(s)
+          </li>
+        ))}
+      </ul>
+
 
 
 

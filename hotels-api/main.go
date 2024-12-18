@@ -78,13 +78,13 @@ func main() {
 	{
 		adminRoutes.POST("", hotelsController.Create)
 		adminRoutes.DELETE("/:hotel_id", hotelsController.Delete)
-		adminRoutes.PUT("/:hotel_id", hotelsController.Update)
+		//adminRoutes.PUT("/:hotel_id", hotelsController.Update)
 	}
 	// Rutas de Reservas y Hoteles (usando solo `hotel_id` en las rutas para evitar conflictos)
 	router.POST("/reservations", reservationsController.CreateReservation)
 	router.GET("/hotels/:hotel_id", hotelsController.GetHotelByID)
 	//router.POST("/hotels", hotelsController.Create)
-	//router.PUT("/hotels/:hotel_id", hotelsController.Update)
+	router.PUT("/hotels/:hotel_id", hotelsController.Update)
 	//router.DELETE("/hotels/:hotel_id", hotelsController.Delete)
 	router.GET("/users/:user_id/reservations", reservationsController.GetReservationsByUserID)
 

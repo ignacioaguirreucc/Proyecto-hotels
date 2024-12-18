@@ -6,6 +6,8 @@ import (
 	hotelsDAO "hotels-api/dao/hotels"
 	hotelsDomain "hotels-api/domain/hotels"
 
+	"log"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -95,11 +97,13 @@ func (service Service) Create(ctx context.Context, hotel hotelsDomain.Hotel) (st
 }
 
 func (service Service) Update(ctx context.Context, hotel hotelsDomain.Hotel) error {
-	// Convert domain model to DAO model
+	// Convertir modelo de dominio a modelo DAO
 	objectID, err := primitive.ObjectIDFromHex(hotel.ID)
 	if err != nil {
 		return fmt.Errorf("invalid ID format: %w", err)
 	}
+
+	// Crear registro del hotel para actualizar
 	record := hotelsDAO.Hotel{
 		ID:          objectID,
 		Name:        hotel.Name,
@@ -111,24 +115,34 @@ func (service Service) Update(ctx context.Context, hotel hotelsDomain.Hotel) err
 		Descripcion: hotel.Descripcion,
 	}
 
-	// Update the hotel in the main repository
+	// 1. Actualizar el hotel en el repositorio principal (MongoDB)
 	err = service.mainRepository.Update(ctx, record)
 	if err != nil {
 		return fmt.Errorf("error updating hotel in main repository: %w", err)
 	}
+	log.Printf("Hotel actualizado en MongoDB con ID: %s", hotel.ID)
 
-	// Try to update the hotel in the cache repository
+	// 2. Intentar actualizar el hotel en el cache
 	if err := service.cacheRepository.Update(ctx, record); err != nil {
-		return fmt.Errorf("error updating hotel in cache: %w", err)
+		log.Printf("Hotel no encontrado en cache. Intentando crearlo: %v", err)
+
+		// Si el cache no contiene el hotel, lo creamos
+		if _, createErr := service.cacheRepository.Create(ctx, record); createErr != nil {
+			return fmt.Errorf("error creando hotel en cache: %w", createErr)
+		}
+		log.Printf("Hotel creado en cache con ID: %s", hotel.ID)
+	} else {
+		log.Printf("Hotel actualizado en cache con ID: %s", hotel.ID)
 	}
 
-	// Publish an event for the update operation
+	// 3. Publicar un evento de actualización en RabbitMQ
 	if err := service.eventsQueue.Publish(hotelsDomain.HotelNew{
 		Operation: "UPDATE",
 		HotelID:   hotel.ID,
 	}); err != nil {
 		return fmt.Errorf("error publishing hotel update: %w", err)
 	}
+	log.Printf("Evento de actualización publicado en RabbitMQ para el hotel con ID: %s", hotel.ID)
 
 	return nil
 }
